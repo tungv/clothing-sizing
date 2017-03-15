@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "micro": "^7.1.0",
+    "opencv": "^6.0.0"
+  }
+}
