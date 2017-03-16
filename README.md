@@ -65,3 +65,5 @@ the result will be similar to the following:
   ]
 }
 ```
+
+for example images. you can start a http server to serve assets directory
