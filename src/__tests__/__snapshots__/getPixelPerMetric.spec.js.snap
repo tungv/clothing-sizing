@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`getLeftMostContour test 1 1`] = `
+Object {
+  "height": 161,
+  "width": 161,
+  "x": 33,
+  "y": 543,
+}
+`;
+
+exports[`getPPM test 1 1`] = `322`;
+
+exports[`getPPM test 2 1`] = `"image is not a 90 deg view"`;

@@ -1,6 +1,7 @@
 const cv = require("opencv");
 const uuid = require("uuid");
 
+const { getLeftMostContour, getPPM } = require('./getPixelPerMetric');
 const getJeansMeasurements = require('./jeansMessurements');
 
 const WHITE = [255, 255, 255];
@@ -13,7 +14,36 @@ const thickness = 1;
 
 const root = process.env.NOW_URL || "http://localhost:3000";
 
-module.exports = (createInputStream, numberOfContours) => {
+const sortContoursByArea = (contours) => {
+  let largestContourImg;
+  let largestArea = 0;
+  let largestAreaIndex;
+
+  const contourSizes = [];
+
+  for (let i = 0; i < contours.size(); i++) {
+    contourSizes.push({ i, area: contours.area(i) });
+  }
+
+  // MUTATION ahead
+  contourSizes.sort((a, b) => b.area - a.area);
+  return contourSizes;
+}
+
+const getContoursWithMutationToImage = (image) => {
+  // prepare image for finding contours
+  // MUTATION ahead
+  image.convertGrayscale();
+  image.gaussianBlur([3, 3]);
+
+  image.canny(lowThresh, highThresh);
+  image.dilate(iterations);
+
+  // actuall contours
+  return image.findContours();
+}
+
+module.exports = (createInputStream, numberOfContours, refWidth, refHeight) => {
   return new Promise((resolve, reject) => {
     const s = new cv.ImageDataStream();
     const id = uuid.v4();
@@ -23,26 +53,14 @@ module.exports = (createInputStream, numberOfContours) => {
       const height = image.height();
       const big = new cv.Matrix(height, width);
 
-      image.convertGrayscale();
-      image.gaussianBlur([3, 3]);
 
-      image.canny(lowThresh, highThresh);
-      image.dilate(iterations);
+      const contours = getContoursWithMutationToImage(image);
 
-      const contours = image.findContours();
+      const ref = getLeftMostContour(contours);
+      const ppm = getPPM(ref, refWidth, refHeight);
 
-      let largestContourImg;
-      let largestArea = 0;
-      let largestAreaIndex;
-
-      const contourSizes = [];
-
-      for (let i = 0; i < contours.size(); i++) {
-        contourSizes.push({ i, area: contours.area(i) });
-      }
-
-      contourSizes.sort((a, b) => b.area - a.area);
-      const biggest = contourSizes.slice(0, numberOfContours);
+      const sortedContours = sortContoursByArea(contours);
+      const biggest = sortedContours.slice(0, numberOfContours);
 
       biggest.forEach(item => {
         const { i } = item;
@@ -66,7 +84,7 @@ module.exports = (createInputStream, numberOfContours) => {
         }
 
         // mutation!
-        item.measurements = getJeansMeasurements(points);
+        item.measurements = getJeansMeasurements(points, ppm);
       });
 
       big.save(`./outputs/${id}.contours.jpg`);
@@ -82,3 +100,5 @@ module.exports = (createInputStream, numberOfContours) => {
     createInputStream().pipe(s);
   });
 };
+
+module.exports.getContoursWithMutationToImage = getContoursWithMutationToImage;

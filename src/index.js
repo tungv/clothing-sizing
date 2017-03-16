@@ -14,7 +14,7 @@ module.exports = async (req, res) => {
     return { error: `NOT SUPPORTED METHOD ${req.method}` }
   }
 
-  const { url, contours } = await json(req)
+  const { url, contours, refWidth, refHeight } = await json(req)
 
   if (!url) {
     return { error: 'url is required' }
@@ -22,7 +22,9 @@ module.exports = async (req, res) => {
 
   const result = await createContoursStream(
     () => request.get(decodeURIComponent(url)),
-    contours || 1
+    contours || 1,
+    refWidth || 1,
+    refHeight || 1
   )
 
   return result;

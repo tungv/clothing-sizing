@@ -20,7 +20,7 @@ const distancePointSegment = (p, a, b) => {
   return d2p(v, p);
 };
 
-module.exports = points => {
+module.exports = (points, ppm) => {
   // console.log("points", points);
   const top = _.minBy("y", points).y;
   const bottom = _.maxBy("y", points).y;
@@ -33,14 +33,14 @@ module.exports = points => {
   // console.log("upperPart", upperPart);
   const topLeft = _.minBy("x", upperPart);
   const topRight = _.maxBy("x", upperPart);
-  const waist = d2p(topRight, topLeft);
+  const waist = d2p(topRight, topLeft) / ppm;
   // console.log("waist", waist);
 
   const midVertLine = (right + left) / 2;
   const middlePoint = _.minBy(p => sq(p.x - midVertLine), points);
   // console.log("middlePoint", middlePoint);
 
-  const rise = distancePointSegment(middlePoint, topLeft, topRight);
+  const rise = distancePointSegment(middlePoint, topLeft, topRight) / ppm;
   // console.log("rise", rise);
 
   const lowerRightPart = _.filter(
@@ -64,13 +64,13 @@ module.exports = points => {
 
   // console.log('inseamLeft', inseamLeft)
   // console.log('inseamRight', inseamRight)
-  const inseam = Math.max(inseamLeft, inseamRight)
+  const inseam = Math.max(inseamLeft, inseamRight) / ppm
 
   const fullLegLeft = d2p(topLeft, outerrmostLeft)
   const fullLegRight = d2p(topRight, outerrmostRight)
   // console.log('fullLegLeft', fullLegLeft)
   // console.log('fullLegRight', fullLegRight)
-  const fullLeg = Math.max(fullLegLeft, fullLegRight)
+  const fullLeg = Math.max(fullLegLeft, fullLegRight) / ppm
 
   return {
     waist,
