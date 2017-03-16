@@ -1,6 +1,23 @@
 {
+  "name": "find-contours",
+  "scripts": {
+    "now-build": "npm i opencv --build-from-source",
+    "start": "micro src/index.js",
+    "clean": "rm -f outputs/*",
+    "test": "jest"
+  },
   "dependencies": {
+    "bluebird": "^3.5.0",
+    "lodash": "^4.17.4",
     "micro": "^7.1.0",
-    "opencv": "^6.0.0"
+    "opencv": "^6.0.0",
+    "request": "^2.81.0",
+    "uuid": "^3.0.1"
+  },
+  "engines": {
+    "node": "6"
+  },
+  "devDependencies": {
+    "jest": "^19.0.2"
   }
 }
